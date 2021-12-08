@@ -1,6 +1,11 @@
-scan by columns:
+scan all matrix in 1 shot:
 
-enable 1 column to check if all the rows is clicked. Alternately enable the columns to scan all the matrix
+All pins are open-drain.
+Firstly, we reset all columns to 0 and set all rows to 1(rows are inputs)
+Secondly, we read all the state of the rows and store it to "row" variable
+Thirdly, we set all columns to 1 and reset all rows to 0(columns are inputs)
+Finally, we read all the state of columns and store it to "col" variable
 
-column: push-pull
-row: open-drain
+The button is pressed if and only if (row.i == 0 and col.j == 0) (bit i of "row" and bit j of "col")
+
+The drawback is that this solution is not general, just be applied for the case that all pins are same port

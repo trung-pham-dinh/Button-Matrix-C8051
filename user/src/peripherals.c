@@ -40,13 +40,12 @@ void Port_IO_Init()
     // P2.1  -  Unassigned,  Open-Drain, Digital
     // P2.2  -  Unassigned,  Open-Drain, Digital
     // P2.3  -  Unassigned,  Open-Drain, Digital
-    // P2.4  -  Unassigned,  Push-Pull,  Digital
-    // P2.5  -  Unassigned,  Push-Pull,  Digital
-    // P2.6  -  Unassigned,  Push-Pull,  Digital
+    // P2.4  -  Unassigned,  Open-Drain, Digital
+    // P2.5  -  Unassigned,  Open-Drain, Digital
+    // P2.6  -  Unassigned,  Open-Drain, Digital
     // P2.7  -  Skipped,     Open-Drain, Digital
 
     P0MDOUT   = 0x07;
-    P2MDOUT   = 0x70;
     XBR2      = 0x40;
 }
 

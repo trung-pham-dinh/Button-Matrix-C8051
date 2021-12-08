@@ -3,9 +3,8 @@
 
 #include "PinLib.h"
  
-#define MR_ROW 4 // edit this
-#define MR_COL 3 // edit this
-#define MR_PORT 2 // edit this
+#define MR_ROW 4 // FIXED config
+#define MR_COL 3 // FIXED config
 #define MR_SAMPLE_PERIOD 10// edit this (ms)
 
 void MR_init();

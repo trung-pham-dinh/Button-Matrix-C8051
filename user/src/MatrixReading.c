@@ -3,24 +3,26 @@
 #include "compiler_defs.h"
 #include "C8051F930_defs.h"
 
-#define MR_PRESSED 0
-#define MR_RELEASED 1
+#define MR_PRESSED 1
+#define MR_RELEASED 0
 
-static PL_PIN rowpin[MR_ROW] = {PL_20,PL_21,PL_22,PL_23}; // edit this
-static PL_PIN colpin[MR_COL] = {PL_24,PL_25,PL_26}; // edit this
+#define MR_DELAY_FOR_CHANGE 10 // delay for state of the pin change completely from 0->1
+
+static uint8_t row,col;
 
 static uint8_t buttonState[MR_ROW][MR_COL];
 static uint8_t debouncePreState[MR_ROW][MR_COL];
 static uint8_t debounceCurState[MR_ROW][MR_COL];
 
-static uint8_t colIndex = 0;
-
 static uint8_t sample_period = MR_SAMPLE_PERIOD;
+
+static uint8_t delay = MR_DELAY_FOR_CHANGE;
 
 typedef enum {
 	MR_VLD_RELEASED,
 	MR_VLD_PRESSED
 } MR_STATE;
+
 static MR_STATE click_state[MR_ROW][MR_COL];
 static uint8_t click_flag[MR_ROW][MR_COL];
 
@@ -28,37 +30,44 @@ void MR_init() {
 	uint8_t i = 0, j = 0;
 	for(; j < MR_COL; j++) {
 		for(i = 0; i < MR_ROW; i++) {
-			PL_WritePin(rowpin[i], 1); // enable input mode for all row
 			buttonState[i][j] = debouncePreState[i][j] = debounceCurState[i][j] = MR_RELEASED;
 			click_state[i][j] = MR_VLD_RELEASED;
 			click_flag[i][j] = 0;
 		}
-		PL_WritePin(colpin[j], 1); // disable all column
 	}
 }
 
-void MR_readState() {
-	uint8_t i = 0;
+void MR_readState() { // read more about algorithm in algorithm.txt
+	uint8_t i,j;
 	
 	if(sample_period) return;
 	sample_period = MR_SAMPLE_PERIOD;
 	
+	P2 = 0x8F; // set all rows and reset all columns
 	
+	delay = MR_DELAY_FOR_CHANGE;
+	while(delay--);
 	
-	PL_WritePin(colpin[colIndex], 0); // enable column to read
+	row = P2 & 0x8F; // read rows
 	
-	for(; i < MR_ROW; i++) {
-		debouncePreState[i][colIndex] = debounceCurState[i][colIndex];
-		debounceCurState[i][colIndex] = PL_ReadPin(rowpin[i]);
-		if(debounceCurState[i][colIndex] == debouncePreState[i][colIndex]) {
-			buttonState[i][colIndex] = debounceCurState[i][colIndex];
-		}
-	}
-	PL_WritePin(colpin[colIndex], 1); // disable column
+	delay = MR_DELAY_FOR_CHANGE;
+	while(delay--);
 	
-	colIndex++;
-	if(colIndex == MR_COL) {
-		colIndex = 0;
+	P2 = row | 0xF0; // reset the rows which are read
+	
+	delay = MR_DELAY_FOR_CHANGE;
+	while(delay--);
+	
+	col = (P2>>4);
+	
+	for(i = 0; i < MR_ROW ; i++) {
+			for(j= 0; j < MR_COL; j++) {
+					debouncePreState[i][j] = debounceCurState[i][j];
+					debounceCurState[i][j] = ((row & (0x01<<i)) == 0) && ((col & (0x01<<j)) == 0);
+					if(debounceCurState[i][j] == debouncePreState[i][j]) {
+						buttonState[i][j] = debounceCurState[i][j];
+					}
+			}
 	}
 }
 
