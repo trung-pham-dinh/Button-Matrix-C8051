@@ -1,0 +1,3 @@
+scan by columns:
+
+enable 1 column to check if all the rows is clicked. Alternately enable the columns to scan all the matrix
