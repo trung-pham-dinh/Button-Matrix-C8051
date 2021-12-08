@@ -1,0 +1,4 @@
+P2 = P2 | 0x1;
+P2 = P2 | 0x2;
+
+there is a problem when C8051 run to fast that the first command has not yet set the bit to 1 (hardware problem, when the internal pull-up resistor is to large, which make the transition from 0->1 long), but the second command is ready to run -> wrong result. The expected output is P2 = 0x3 but the real result is 0x2;
